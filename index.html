@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Water Tank Problem</title>
+    <style>
+    body {
+     text-align: center;
+      font-family: Arial, sans-serif;
+      background-color: #f5f5f5;
+      margin: 0;
+      padding: 20px;
+     
+    }
+
+    h1 {
+      text-align: center;
+      color: #333;
+    }
+
+    .container {
+      max-width: 600px;
+      margin: 0 auto;
+      background-color: #fff;
+      border-radius: 4px;
+      padding: 20px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    label {
+      display: inline-block;
+      margin-bottom: 8px;
+    }
+
+    input[type="text"] {
+      padding: 8px;
+      font-size: 14px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      width:25%;
+    }
+
+    button {
+      padding: 8px 16px;
+      margin: 2px;
+      font-size: 14px;
+      background-color: #4caf50;
+      color: #fff;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+
+    }
+
+    button:hover {
+      background-color: #45a049;
+    }
+
+    .result {
+      margin-top: 16px;
+      text-align: center;
+      font-size: 18px;
+    }
+
+    svg {
+      width: 50%;
+      height: auto;
+      display: block;
+      margin-top: 20px;
+    }
+
+    rect.block {
+      fill: #ccc;
+    }
+
+    rect.water {
+      fill: blue;
+      opacity: 0.5;
+    }
+  </style>
+</head>
+<body>
+  <h1>Water Tank Problem</h1>
+  <div>
+    <label for="blockHeight">Enter block heights:</label>
+    <input type="text" id="blockHeight" placeholder="0,4,0,0,0,6,0,6,4,0">
+    <button onclick="calculateWater()">Calculate</button>
+  </div>
+  <div>
+    <h2>Result:</h2>
+    <p id="result"></p>
+  </div>
+  <svg id="waterTank"></svg>
+
+  <script>
+    function calculateWater() {
+      const blockHeightInput = document.getElementById('blockHeight');
+      const waterTank = document.getElementById('waterTank');
+      const result = document.getElementById('result');
+      const blockHeights = blockHeightInput.value.split(',').map(Number);
+
+      const unitsOfWater = computeWaterUnits(blockHeights);
+      result.textContent = `Units of water stored: ${unitsOfWater}`;
+
+      const svgShape = generateSVGShape(blockHeights, unitsOfWater);
+      waterTank.innerHTML = svgShape;
+    }
+
+    function computeWaterUnits(blockHeights) {
+      const n = blockHeights.length;
+      let left = Array(n).fill(0);
+      let right = Array(n).fill(0);
+      let waterUnits = 0;
+
+      left[0] = blockHeights[0];
+      for (let i = 1; i < n; i++) {
+        left[i] = Math.max(left[i - 1], blockHeights[i]);
+      }
+
+      right[n - 1] = blockHeights[n - 1];
+      for (let i = n - 2; i >= 0; i--) {
+        right[i] = Math.max(right[i + 1], blockHeights[i]);
+      }
+
+      for (let i = 0; i < n; i++) {
+        waterUnits += Math.min(left[i], right[i]) - blockHeights[i];
+      }
+
+      return waterUnits;
+    }
+
+    function generateSVGShape(blockHeights, unitsOfWater) {
+      const svgWidth = 400;
+      const svgHeight = 200;
+      const blockWidth = svgWidth / blockHeights.length;
+      const maxHeight = Math.max(...blockHeights);
+      const unitHeight = svgHeight / maxHeight;
+      let svgShape = '';
+
+      for (let i = 0; i < blockHeights.length; i++) {
+        const x = i * blockWidth;
+        const height = blockHeights[i] * unitHeight;
+        const waterHeight = unitsOfWater * unitHeight;
+        const waterY = svgHeight - waterHeight;
+
+        svgShape += `<rect x="${x}" y="${svgHeight - height}" width="${blockWidth}" height="${height}" fill="#ccc"></rect>`;
+        svgShape += `<rect x="${x}" y="${waterY}" width="${blockWidth}" height="${waterHeight}" fill="blue" opacity="0.5"></rect>`;
+      }
+
+      return svgShape;
+    }
+  </script>
+</body>
+</html>
